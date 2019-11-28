@@ -1,49 +1,19 @@
-# https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
-# https://docs.docker.com/compose/compose-file/#target
+FROM node:11.5-alpine
 
+ENV HOST 0.0.0.0
 
-# https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG NODE_VERSION=13
-ARG NGINX_VERSION=1.17
-
-
-# "development" stage
-FROM node:${NODE_VERSION}-alpine AS api_platform_client_development
-
+# Create app directory.
+RUN mkdir -p /usr/src/client
 WORKDIR /usr/src/client
 
-RUN yarn global add @api-platform/client-generator
+RUN apk add python make g++
 
-# prevent the reinstallation of node modules at every changes in the source code
+# Prevent the reinstallation of node modules at every changes in the source code.
 COPY package.json yarn.lock ./
-RUN set -eux; \
-	yarn install
+RUN yarn install
 
 COPY . ./
 
-VOLUME /usr/src/client/node_modules
+CMD yarn dev
 
-ENV HTTPS true
-
-CMD ["yarn", "start"]
-
-
-# "build" stage
-# depends on the "development" stage above
-FROM api_platform_client_development AS api_platform_client_build
-
-ARG REACT_APP_API_ENTRYPOINT
-
-RUN set -eux; \
-	yarn build
-
-
-# "nginx" stage
-# depends on the "build" stage above
-FROM nginx:${NGINX_VERSION}-alpine AS api_platform_client_nginx
-
-COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
-
-WORKDIR /usr/src/client/build
-
-COPY --from=api_platform_client_build /usr/src/client/build ./
+EXPOSE 3000

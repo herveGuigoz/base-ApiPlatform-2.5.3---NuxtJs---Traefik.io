@@ -1,13 +1,15 @@
-## Installation
+# Base dockerized ApiPlatform with Traefik and Nuxt
 
-### Create Certs
-- Install [mkcert](https://github.com/FiloSottile/mkcert)
-- Run: `make certs`
+## Installation
 
 ### Install Project
 - Edit environment `PROJECT_NAME` variables in `./.env` && `./Makefile`
 - Edit `DATABASE_URL` variable in `./api/.env` & db variable in `./.env`
 - Run `make install`
+
+## Create Certs
+- Install [mkcert](https://github.com/FiloSottile/mkcert)
+- Run: `make certs`
 
 ## Routes: 
 

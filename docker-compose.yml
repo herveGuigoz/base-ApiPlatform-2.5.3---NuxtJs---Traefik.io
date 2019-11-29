@@ -13,7 +13,7 @@ x-networks: &networks
 services:
   traefik:
     image: "traefik:v2.0.1"
-    container_name: traefik
+    container_name: traefik_${PROJECT_NAME}
     command:
       # Traefik will listen on port 8080 by default for API request.
       - --api.insecure=true
@@ -33,7 +33,7 @@ services:
   client:
     build:
       context: ./client
-    container_name: client
+    container_name: client_${PROJECT_NAME}
     volumes:
       - ./client:/usr/src/client:rw,cached
       - /usr/src/client/node_modules
@@ -52,7 +52,7 @@ services:
       target: api_platform_php
       <<: *api-cache-from
     image: ${PHP_IMAGE:-quay.io/api-platform/php}
-    container_name: php
+    container_name: php_${PROJECT_NAME}
     healthcheck:
       interval: 10s
       timeout: 3s
@@ -72,7 +72,7 @@ services:
       context: ./api
       target: api_platform_nginx
       <<: *api-cache-from
-    container_name: api
+    container_name: api_${PROJECT_NAME}
     image: ${NGINX_IMAGE:-quay.io/api-platform/nginx}
     depends_on:
       - php
@@ -85,13 +85,13 @@ services:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
       # The domain the service will respond to
-      - traefik.http.routers.whoami.rule=Host(`api.localhost`)
+      - traefik.http.routers.api.rule=Host(`api.localhost`)
       # Allow request only from the predefined entry point named "web"
-      - traefik.http.routers.whoami.entrypoints=web
+      - traefik.http.routers.api.entrypoints=web
     
   db:
     image: postgres:12-alpine
-    container_name: db
+    container_name: db_${PROJECT_NAME}
     environment:
       - POSTGRES_DB=api
       - POSTGRES_PASSWORD=!ChangeMe!
@@ -110,7 +110,7 @@ services:
 
   adminer:
     image: adminer
-    container_name: adminer
+    container_name: adminer_${PROJECT_NAME}
     restart: always
     expose:
       - "8080"
@@ -119,9 +119,13 @@ services:
     depends_on:
       - db
     <<: *networks
-    #labels:
-    #  - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
-    #  - traefik.https.routers.adminers.rule=Host(`adminer.localhost`)
+    labels:
+    # Explicitly tell Traefik to expose this container
+    - traefik.enable=true
+    # The domain the service will respond to
+    - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
+    # Allow request only from the predefined entry point named "web"
+    - traefik.http.routers.adminer.entrypoints=web
 
 #  vulcain:
 #    image: dunglas/vulcain

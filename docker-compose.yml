@@ -14,20 +14,16 @@ services:
   traefik:
     image: "traefik:v2.0.1"
     container_name: traefik_${PROJECT_NAME}
-    command:
-      # Traefik will listen on port 8080 by default for API request.
-      - --api.insecure=true
-      # Enabling docker provider
-      - --providers.docker=true
-      # Do not expose containers unless explicitly told so
-      - --providers.docker.exposedbydefault=false
-      # Traefik will listen to incoming request on the port 80 (HTTP)
-      - --entrypoints.web.address=:80
     ports:
       - "80:80"
       - "8080:8080"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.toml:/etc/traefik/traefik.toml
+      # On map les certificats dans le conteneur
+      - ./traefik/certs:/etc/traefik/certs:ro
+#      - ./acme.json:/acme.json
     <<: *networks
 
   client:
@@ -42,9 +38,10 @@ services:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
       # The domain the service will respond to
-      - traefik.http.routers.client.rule=Host(`client.localhost`)
+      - traefik.http.routers.client.rule=Host(`client.${DOMAIN_NAME}`)
       # Allow request only from the predefined entry point named "web"
       - traefik.http.routers.client.entrypoints=web
+      #- traefik.http.routers.client.tls=true
 
   php:
     build:
@@ -60,6 +57,11 @@ services:
       start_period: 30s
     depends_on:
       - db
+    environment:
+      - APP_ENV=${APP_ENV}
+      - TRUSTED_HOSTS=^((${SUBDOMAINS_LIST}\.)?${DOMAIN_NAME})$$
+      - CORS_ALLOW_ORIGIN=^(${HTTP_OR_SSL}(${SUBDOMAINS_LIST}.)?${DOMAIN_NAME})$$
+      - DATABASE_URL=postgres://${DATABASE_USER}:${DATABASE_PASS}@db/${DATABASE_NAME}
     volumes:
       - ./api:/srv/api:rw,cached
       - ./api/docker/php/conf.d/api-platform.dev.ini/:/usr/local/etc/php/conf.d/api-platform.ini
@@ -85,7 +87,7 @@ services:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
       # The domain the service will respond to
-      - traefik.http.routers.api.rule=Host(`api.localhost`)
+      - traefik.http.routers.api.rule=Host(`api.${DOMAIN_NAME}`)
       # Allow request only from the predefined entry point named "web"
       - traefik.http.routers.api.entrypoints=web
     
@@ -93,9 +95,9 @@ services:
     image: postgres:12-alpine
     container_name: db_${PROJECT_NAME}
     environment:
-      - POSTGRES_DB=api
-      - POSTGRES_PASSWORD=!ChangeMe!
-      - POSTGRES_USER=api-platform
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASS}
+      - POSTGRES_USER=${DATABASE_USER}
     volumes:
       - db-data:/var/lib/postgresql/data:rw
       # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
@@ -123,7 +125,7 @@ services:
     # Explicitly tell Traefik to expose this container
     - traefik.enable=true
     # The domain the service will respond to
-    - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
+    - traefik.http.routers.adminer.rule=Host(`adminer.${DOMAIN_NAME}`)
     # Allow request only from the predefined entry point named "web"
     - traefik.http.routers.adminer.entrypoints=web
 

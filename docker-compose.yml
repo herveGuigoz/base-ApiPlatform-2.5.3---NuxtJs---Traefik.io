@@ -1,53 +1,127 @@
 version: '3.4'
 
-#x-cache-from:
-#  - &api-cache-from
-#    cache_from:
-#      - ${NGINX_IMAGE:-quay.io/api-platform/nginx}
-#      - ${PHP_IMAGE:-quay.io/api-platform/php}
+x-cache-from:
+  - &api-cache-from
+    cache_from:
+      - ${NGINX_IMAGE:-quay.io/api-platform/nginx}
+      - ${PHP_IMAGE:-quay.io/api-platform/php}
+
+x-networks: &networks
+  networks:
+    - familycooking
 
 services:
   traefik:
     image: "traefik:v2.0.1"
+    container_name: traefik
     command:
+      # Traefik will listen on port 8080 by default for API request.
+      - --api.insecure=true
+      # Enabling docker provider
+      - --providers.docker=true
+      # Do not expose containers unless explicitly told so
+      - --providers.docker.exposedbydefault=false
+      # Traefik will listen to incoming request on the port 80 (HTTP)
       - --entrypoints.web.address=:80
-      - --providers.docker
-      - --api.insecure
     ports:
       - "80:80"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-  
-#  php:
-#    build:
-#      context: ./api
-#      target: api_platform_php
-#      <<: *api-cache-from
-#    image: ${PHP_IMAGE:-quay.io/api-platform/php}
-#    healthcheck:
-#      interval: 10s
-#      timeout: 3s
-#      retries: 3
-#      start_period: 30s
-#    depends_on:
-#      - db
-#    volumes:
-#      - ./api:/srv/api:rw,cached
-#      - ./api/docker/php/conf.d/api-platform.dev.ini/:/usr/local/etc/php/conf.d/api-platform.ini
+    <<: *networks
+
+  client:
+    build:
+      context: ./client
+    container_name: client
+    volumes:
+      - ./client:/usr/src/client:rw,cached
+      - /usr/src/client/node_modules
+    <<: *networks
+    labels:
+      # Explicitly tell Traefik to expose this container
+      - traefik.enable=true
+      # The domain the service will respond to
+      - traefik.http.routers.client.rule=Host(`client.localhost`)
+      # Allow request only from the predefined entry point named "web"
+      - traefik.http.routers.client.entrypoints=web
+
+  php:
+    build:
+      context: ./api
+      target: api_platform_php
+      <<: *api-cache-from
+    image: ${PHP_IMAGE:-quay.io/api-platform/php}
+    container_name: php
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - db
+    volumes:
+      - ./api:/srv/api:rw,cached
+      - ./api/docker/php/conf.d/api-platform.dev.ini/:/usr/local/etc/php/conf.d/api-platform.ini
       # if you develop on Linux, you may use a bind-mounted host directory instead
       # - ./api/var:/srv/api/var:rw
+    <<: *networks
 
-#  api:
-#    build:
-#      context: ./api
-#      target: api_platform_nginx
-#      <<: *api-cache-from
-#    image: ${NGINX_IMAGE:-quay.io/api-platform/nginx}
-#    depends_on:
-#      - php
-#    volumes:
-#      - ./api/public:/srv/api/public:ro
+  api:
+    build:
+      context: ./api
+      target: api_platform_nginx
+      <<: *api-cache-from
+    container_name: api
+    image: ${NGINX_IMAGE:-quay.io/api-platform/nginx}
+    depends_on:
+      - php
+    volumes:
+      - ./api/public:/srv/api/public:ro
+    <<: *networks
+    expose: 
+      - "81"
+    labels:
+      # Explicitly tell Traefik to expose this container
+      - traefik.enable=true
+      # The domain the service will respond to
+      - traefik.http.routers.whoami.rule=Host(`api.localhost`)
+      # Allow request only from the predefined entry point named "web"
+      - traefik.http.routers.whoami.entrypoints=web
+    
+  db:
+    image: postgres:12-alpine
+    container_name: db
+    environment:
+      - POSTGRES_DB=api
+      - POSTGRES_PASSWORD=!ChangeMe!
+      - POSTGRES_USER=api-platform
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+      # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./api/docker/db/data:/var/lib/postgresql/data:rw
+#    ports:
+#      - target: 5432
+#        published: 5432
+#        protocol: tcp
+    <<: *networks
+    ports:
+      - "5432:5432"
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    expose:
+      - "8080"
+#    ports:
+#      - '8998:8080'
+    depends_on:
+      - db
+    <<: *networks
+    #labels:
+    #  - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
+    #  - traefik.https.routers.adminers.rule=Host(`adminer.localhost`)
 
 #  vulcain:
 #    image: dunglas/vulcain
@@ -65,20 +139,6 @@ services:
 #        published: 8443
 #        protocol: tcp
 
-#  db:
-#    image: postgres:12-alpine
-#    environment:
-#      - POSTGRES_DB=api
-#      - POSTGRES_PASSWORD=!ChangeMe!
-#      - POSTGRES_USER=api-platform
-#    volumes:
-#      - db-data:/var/lib/postgresql/data:rw
-      # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./api/docker/db/data:/var/lib/postgresql/data:rw
-#    ports:
-#      - target: 5432
-#        published: 5432
-#        protocol: tcp
 
 #  mercure:
 #    image: dunglas/mercure
@@ -98,19 +158,6 @@ services:
 #      - target: 443
 #        published: 1337
 #        protocol: tcp
-
-  client:
-    build:
-      context: ./client
-    volumes:
-      - ./client:/usr/src/client:rw,cached
-      - /usr/src/client/node_modules
-#     - dev-certs:/usr/src/client/node_modules/webpack-dev-server/ssl:ro
-#    extra_hosts:
-#      - "familycooking.com:127.0.0.1"
-    labels:
-      - traefik.http.routers.client.rule=Host(`localhost`)
-      - traefik.http.services.client.loadbalancer.server.port=3000
 
 #  admin:
 #    build:
@@ -139,6 +186,10 @@ services:
 #        published: 80
 #        protocol: tcp
 
-#volumes:
-#  db-data: {}
+volumes:
+  db-data: {}
 #  dev-certs: {}
+
+networks:
+  familycooking:
+    external: true

@@ -118,6 +118,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
+EXPOSE 81
 
 # "nginx" stage
 # depends on the "php" stage above

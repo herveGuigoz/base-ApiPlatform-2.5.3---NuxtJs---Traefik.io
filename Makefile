@@ -26,22 +26,13 @@ update: ## Update project
 	$(DC) down --remove-orphans
 	$(DC) pull
 	$(DC) build
-	$(MAKE) up
+	$(MAKE) start
 
-up: ## Up containers
+start: ## Up containers
 	$(DC_UP)
 
 stop: ## Stop project
 	$(DC) stop
-
-checkout: ## Git checkout helper
-	$(DC) stop
-	$(DC) exec php composer install
-	make back-db-schema-update
-	make back-db-reset
-	$(DC) exec php rm -rf var/cache
-	$(DC) stop
-	$(DC_UP) --remove-orphans --no-recreate
 
 logs: ## Show logs
 	# Follow the logs.
@@ -76,6 +67,8 @@ back-db-reset: ## Reset the database with fixtures data
 back-rm-cache: ## Clear cache
 	$(DC) exec php rm -rf var/cache
 
+certs:
+	cd ./traefik && mkdir certs && mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "client.localhost" "api.localhost" "adminer.localhost" "localhost"
 ##
 ## Frontend specific
 ## -----

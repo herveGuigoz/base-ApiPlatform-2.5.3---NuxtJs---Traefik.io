@@ -1,7 +1,10 @@
 [providers.docker]
   endpoint = "unix:///var/run/docker.sock"
+  watch = true
   exposedByDefault = false
-  network = "familycooking"
+  [docker.tls]
+    cert = "/etc/traefik/certs/local-cert.pem"
+    key = "/etc/traefik/certs/local-key.pem"
 
 [api]
   insecure = true
@@ -13,3 +16,8 @@
     address = ":80"
   [entryPoints.web-secure]
     address = ":443"
+
+[providers]
+  [providers.file]
+    filename = "/etc/traefik/traefik.config.toml"
+    watch = true

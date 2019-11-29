@@ -14,14 +14,19 @@ services:
   traefik:
     image: "traefik:v2.0.1"
     container_name: traefik_${PROJECT_NAME}
+    command:
+      - --providers.docker.network=${PROJECT_NAME}
     ports:
       - "80:80"
       - "8080:8080"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/traefik.toml:/etc/traefik/traefik.toml
-      # On map les certificats dans le conteneur
+      - /var/run/docker.sock:/var/run/docker.sock
+      # On map la conf statique dans le conteneur
+      - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
+      # On map la conf dynamique statique dans le conteneur
+      - ./traefik/traefik.config.toml:/etc/traefik/traefik.config.toml:ro
+      # On map les certificats dans le conteneur en prod preferer Let’s Encrypt
       - ./traefik/certs:/etc/traefik/certs:ro
 #      - ./acme.json:/acme.json
     <<: *networks
@@ -37,11 +42,13 @@ services:
     labels:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
-      # The domain the service will respond to
+      # The domains the service will respond to
       - traefik.http.routers.client.rule=Host(`client.${DOMAIN_NAME}`)
-      # Allow request only from the predefined entry point named "web"
+      - traefik.http.routers.clients.rule=Host(`client.${DOMAIN_NAME}`)
+      # Allow request from the predefined entry points named "web" & "web-secure"
       - traefik.http.routers.client.entrypoints=web
-      #- traefik.http.routers.client.tls=true
+      - traefik.http.routers.clients.entrypoints=web-secure
+      - traefik.http.routers.clients.tls=true
 
   php:
     build:
@@ -86,10 +93,13 @@ services:
     labels:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
-      # The domain the service will respond to
+      # The domains the service will respond to
       - traefik.http.routers.api.rule=Host(`api.${DOMAIN_NAME}`)
-      # Allow request only from the predefined entry point named "web"
+      - traefik.http.routers.apis.rule=Host(`api.${DOMAIN_NAME}`)
+      # Allow request from the predefined entry points named "web" & "web-secure"
       - traefik.http.routers.api.entrypoints=web
+      - traefik.http.routers.apis.entrypoints=web-secure
+      - traefik.http.routers.apis.tls=true
     
   db:
     image: postgres:12-alpine
@@ -124,10 +134,13 @@ services:
     labels:
     # Explicitly tell Traefik to expose this container
     - traefik.enable=true
-    # The domain the service will respond to
+    # The domains the service will respond to
     - traefik.http.routers.adminer.rule=Host(`adminer.${DOMAIN_NAME}`)
-    # Allow request only from the predefined entry point named "web"
+    - traefik.http.routers.adminers.rule=Host(`adminer.${DOMAIN_NAME}`)
+    # Allow request from the predefined entry points named "web" & "web-secure"
     - traefik.http.routers.adminer.entrypoints=web
+    - traefik.http.routers.adminers.entrypoints=web-secure
+    - traefik.http.routers.adminers.tls=true
 
 #  vulcain:
 #    image: dunglas/vulcain

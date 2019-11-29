@@ -1,7 +1,7 @@
 {
-  "name": "familycooking",
+  "name": "ApiPlateform",
   "version": "1.0.0",
-  "description": "Share you recipes in family",
+  "description": "Starting template for ApiPlatform - NuxtJs - Traefik.io",
   "author": "herveGuigoz",
   "private": true,
   "scripts": {

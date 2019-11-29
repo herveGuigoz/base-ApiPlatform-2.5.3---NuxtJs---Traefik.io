@@ -1,12 +1,9 @@
 <template>
   <div class="container">
-    <div>
-      <logo />
-      <h1 class="title">
-        familycooking
-      </h1>
-      <h2 class="subtitle">
-        Share you recipes in family
+    <div class="flex flex-col items-center justify-center">
+        <logo />
+      <h2 class="subtitle pt-10">
+        Starting template for ApiPlatform - NuxtJs - Traefik.io
       </h2>
       <div class="links">
         <a
@@ -52,17 +49,6 @@ export default {
   align-items: center;
   text-align: center;
 }
-
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
 .subtitle {
   font-weight: 300;
   font-size: 42px;

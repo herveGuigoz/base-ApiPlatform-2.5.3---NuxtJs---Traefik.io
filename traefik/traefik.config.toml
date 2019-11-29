@@ -1,3 +1,5 @@
+# Configuration dynamique
+
 [tls]
   [[tls.certificates]]
     certFile = "/etc/traefik/certs/local-cert.pem"

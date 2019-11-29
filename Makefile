@@ -1,6 +1,6 @@
 DC=docker-compose
 DC_UP=$(DC) up -d
-PROJECT_NAME=familycooking
+PROJECT_NAME=apiplatform
 
 down: ## Down containers
 	$(DC) down --remove-orphans
@@ -18,11 +18,13 @@ help: ## Show commands
 ## -----
 ##
 
+network: ## Create Network
+	docker network create ${PROJECT_NAME}
+
 install: update ## Install, prepare and build project
-	#docker network ${PROJECT_NAME}
 
 update: ## Update project
-	#git pull
+	# git pull
 	$(DC) down --remove-orphans
 	$(DC) pull
 	$(DC) build
@@ -49,7 +51,7 @@ uninstall:
 	# Remove containers.
 	$(DC) down --volumes --remove-orphans
 #	./scripts/linux/uninstall.sh
-	
+
 ##
 ## Backend specific
 ## -----
@@ -69,6 +71,7 @@ back-rm-cache: ## Clear cache
 
 certs:
 	cd ./traefik && mkdir certs && mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "client.localhost" "api.localhost" "adminer.localhost" "localhost"
+
 ##
 ## Frontend specific
 ## -----

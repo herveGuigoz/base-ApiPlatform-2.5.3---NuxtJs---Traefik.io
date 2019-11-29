@@ -8,7 +8,7 @@ x-cache-from:
 
 x-networks: &networks
   networks:
-    - familycooking
+    - apiplatform
 
 services:
   traefik:
@@ -43,12 +43,12 @@ services:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
       # The domains the service will respond to
-      - traefik.http.routers.client.rule=Host(`client.${DOMAIN_NAME}`)
-      - traefik.http.routers.clients.rule=Host(`client.${DOMAIN_NAME}`)
+      - traefik.http.routers.client-http-${PROJECT_NAME}.rule=Host(`client.${DOMAIN_NAME}`)
+      - traefik.http.routers.client-https-${PROJECT_NAME}.rule=Host(`client.${DOMAIN_NAME}`)
       # Allow request from the predefined entry points named "web" & "web-secure"
-      - traefik.http.routers.client.entrypoints=web
-      - traefik.http.routers.clients.entrypoints=web-secure
-      - traefik.http.routers.clients.tls=true
+      - traefik.http.routers.client-http-${PROJECT_NAME}.entrypoints=web
+      - traefik.http.routers.client-https-${PROJECT_NAME}.entrypoints=web-secure
+      - traefik.http.routers.client-https-${PROJECT_NAME}.tls=true
 
   php:
     build:
@@ -94,12 +94,12 @@ services:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
       # The domains the service will respond to
-      - traefik.http.routers.api.rule=Host(`api.${DOMAIN_NAME}`)
-      - traefik.http.routers.apis.rule=Host(`api.${DOMAIN_NAME}`)
+      - traefik.http.routers.api-http-${PROJECT_NAME}.rule=Host(`api.${DOMAIN_NAME}`)
+      - traefik.http.routers.api-https-${PROJECT_NAME}.rule=Host(`api.${DOMAIN_NAME}`)
       # Allow request from the predefined entry points named "web" & "web-secure"
-      - traefik.http.routers.api.entrypoints=web
-      - traefik.http.routers.apis.entrypoints=web-secure
-      - traefik.http.routers.apis.tls=true
+      - traefik.http.routers.api-http-${PROJECT_NAME}.entrypoints=web
+      - traefik.http.routers.api-https-${PROJECT_NAME}.entrypoints=web-secure
+      - traefik.http.routers.api-https-${PROJECT_NAME}.tls=true
     
   db:
     image: postgres:12-alpine
@@ -135,12 +135,26 @@ services:
     # Explicitly tell Traefik to expose this container
     - traefik.enable=true
     # The domains the service will respond to
-    - traefik.http.routers.adminer.rule=Host(`adminer.${DOMAIN_NAME}`)
-    - traefik.http.routers.adminers.rule=Host(`adminer.${DOMAIN_NAME}`)
+    - traefik.http.routers.adminer-http-${PROJECT_NAME}.rule=Host(`adminer.${DOMAIN_NAME}`)
+    - traefik.http.routers.adminer-https-${PROJECT_NAME}.rule=Host(`adminer.${DOMAIN_NAME}`)
     # Allow request from the predefined entry points named "web" & "web-secure"
-    - traefik.http.routers.adminer.entrypoints=web
-    - traefik.http.routers.adminers.entrypoints=web-secure
-    - traefik.http.routers.adminers.tls=true
+    - traefik.http.routers.adminer-http-${PROJECT_NAME}.entrypoints=web
+    - traefik.http.routers.adminer-https-${PROJECT_NAME}.entrypoints=web-secure
+    - traefik.http.routers.adminer-https-${PROJECT_NAME}.tls=true
+
+#  admin:
+#    build:
+#      context: ./admin
+#      target: api_platform_admin_development
+#      cache_from:
+#        - ${ADMIN_IMAGE:-quay.io/api-platform/admin}
+#    image: ${ADMIN_IMAGE:-quay.io/api-platform/admin}
+#    volumes:
+#      - ./admin:/usr/src/admin:rw,cached
+#    ports:
+#      - target: 3000
+#        published: 444
+#        protocol: tcp
 
 #  vulcain:
 #    image: dunglas/vulcain
@@ -157,7 +171,6 @@ services:
 #      - target: 443
 #        published: 8443
 #        protocol: tcp
-
 
 #  mercure:
 #    image: dunglas/mercure
@@ -178,37 +191,9 @@ services:
 #        published: 1337
 #        protocol: tcp
 
-#  admin:
-#    build:
-#      context: ./admin
-#      target: api_platform_admin_development
-#      cache_from:
-#        - ${ADMIN_IMAGE:-quay.io/api-platform/admin}
-#    image: ${ADMIN_IMAGE:-quay.io/api-platform/admin}
-#    depends_on:
-#      - dev-tls
-#    volumes:
-#      - ./admin:/usr/src/admin:rw,cached
-#      - dev-certs:/usr/src/admin/node_modules/webpack-dev-server/ssl:ro
-#    ports:
-#      - target: 3000
-#        published: 444
-#        protocol: tcp
-
-#  dev-tls:
-#    build:
-#      context: ./docker/dev-tls
-#    volumes:
-#      - dev-certs:/certs:rw
-#    ports:
-#      - target: 80
-#        published: 80
-#        protocol: tcp
-
 volumes:
   db-data: {}
-#  dev-certs: {}
 
 networks:
-  familycooking:
+  apiplatform:
     external: true

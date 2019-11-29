@@ -1,3 +1,12 @@
+# Configuration statique
+
+[global]
+  sendAnonymousUsage = false
+
+[log]
+  level = "INFO" #DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+  format = "common"
+
 [providers.docker]
   endpoint = "unix:///var/run/docker.sock"
   watch = true

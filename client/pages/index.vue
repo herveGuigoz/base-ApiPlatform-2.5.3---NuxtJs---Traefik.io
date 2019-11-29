@@ -3,7 +3,7 @@
     <div class="flex flex-col items-center justify-center">
         <logo />
       <h2 class="subtitle pt-10">
-        Starting template for ApiPlatform - NuxtJs - Traefik.io
+        base ApiPlatform - NuxtJs - Traefik.io
       </h2>
       <div class="links">
         <a

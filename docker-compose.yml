@@ -28,7 +28,6 @@ services:
       - ./traefik/traefik.config.toml:/etc/traefik/traefik.config.toml:ro
       # On map les certificats dans le conteneur en prod preferer Let’s Encrypt
       - ./traefik/certs:/etc/traefik/certs:ro
-#      - ./acme.json:/acme.json
     <<: *networks
 
   client:
@@ -38,13 +37,15 @@ services:
     volumes:
       - ./client:/usr/src/client:rw,cached
       - /usr/src/client/node_modules
+    extra_hosts:
+      - "localhost:127.0.0.1"
     <<: *networks
     labels:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
       # The domains the service will respond to
-      - traefik.http.routers.client-http-${PROJECT_NAME}.rule=Host(`client.${DOMAIN_NAME}`)
-      - traefik.http.routers.client-https-${PROJECT_NAME}.rule=Host(`client.${DOMAIN_NAME}`)
+      - traefik.http.routers.client-http-${PROJECT_NAME}.rule=HostRegexp(`{subdomains:(www.)?}${DOMAIN_NAME}`)
+      - traefik.http.routers.client-https-${PROJECT_NAME}.rule=HostRegexp(`{subdomains:(www.)?}${DOMAIN_NAME}`)
       # Allow request from the predefined entry points named "web" & "web-secure"
       - traefik.http.routers.client-http-${PROJECT_NAME}.entrypoints=web
       - traefik.http.routers.client-https-${PROJECT_NAME}.entrypoints=web-secure
@@ -89,7 +90,9 @@ services:
       - ./api/public:/srv/api/public:ro
     <<: *networks
     expose: 
-      - "81"
+      - "8443"
+    extra_hosts:
+      - "localhost:127.0.0.1"
     labels:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true

@@ -1,7 +1,7 @@
 {
-  "name": "ApiPlateform",
+  "name": "apiplatform2.5.3",
   "version": "1.0.0",
-  "description": "Starting template for ApiPlatform - NuxtJs - Traefik.io",
+  "description": "Base ApiPlatform - NuxtJs - Traefik.io",
   "author": "herveGuigoz",
   "private": true,
   "scripts": {
@@ -11,6 +11,8 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxt/http": "^0.3.8",
+    "@nuxtjs/axios": "^5.8.0",
     "nuxt": "^2.0.0"
   },
   "devDependencies": {

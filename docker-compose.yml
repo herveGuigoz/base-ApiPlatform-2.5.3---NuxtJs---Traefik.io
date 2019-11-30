@@ -20,14 +20,16 @@ services:
       - "80:80"
       - "8080:8080"
       - "443:443"
+    depends_on:
+      - dev-tls
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # On map la conf statique dans le conteneur
       - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
-      # On map la conf dynamique statique dans le conteneur
+      # On map la conf dynamique dans le conteneur
       - ./traefik/traefik.config.toml:/etc/traefik/traefik.config.toml:ro
-      # On map les certificats dans le conteneur en prod preferer Let’s Encrypt
-      - ./traefik/certs:/etc/traefik/certs:ro
+      # On map les certificats dans le conteneur en prod => Let’s Encrypt
+      - dev-certs:/certs:ro
     <<: *networks
 
   client:
@@ -137,6 +139,17 @@ services:
     - traefik.http.routers.adminer-https-${PROJECT_NAME}.entrypoints=web-secure
     - traefik.http.routers.adminer-https-${PROJECT_NAME}.tls=true
 
+  dev-tls:
+    build:
+      context: ./docker/dev-tls
+    container_name: dev_tls_${PROJECT_NAME}
+    volumes:
+      - dev-certs:/certs:rw
+    ports:
+      - target: 80
+        published: 85
+        protocol: tcp
+
 #  admin:
 #    build:
 #      context: ./admin
@@ -146,6 +159,7 @@ services:
 #    image: ${ADMIN_IMAGE:-quay.io/api-platform/admin}
 #    volumes:
 #      - ./admin:/usr/src/admin:rw,cached
+#      - dev-certs:/usr/src/admin/node_modules/webpack-dev-server/ssl:ro
 #    ports:
 #      - target: 3000
 #        published: 444
@@ -188,6 +202,7 @@ services:
 
 volumes:
   db-data: {}
+  dev-certs: {}
 
 networks:
   apiplatform:

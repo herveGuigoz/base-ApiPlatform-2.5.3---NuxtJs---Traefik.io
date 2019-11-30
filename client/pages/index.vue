@@ -11,15 +11,20 @@
           target="_blank"
           class="button--green"
         >
-          Documentation
+          Nuxt Documentation
         </a>
         <a
-          href="https://github.com/nuxt/nuxt.js"
+          href="https://api-platform.com/docs"
           target="_blank"
           class="button--grey"
         >
-          GitHub
+          Api Platform Documentation
         </a>
+      </div>
+      <div class="links">
+        <nuxt-link to="/requests" class="button--green">
+          Test Requests
+        </nuxt-link>
       </div>
     </div>
   </div>

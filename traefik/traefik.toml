@@ -12,8 +12,8 @@
   watch = true
   exposedByDefault = false
   [docker.tls]
-    cert = "/etc/traefik/certs/local-cert.pem"
-    key = "/etc/traefik/certs/local-key.pem"
+    cert = "/certs/local-cert.pem"
+    key = "/certs/local-key.pem"
 
 [api]
   insecure = true

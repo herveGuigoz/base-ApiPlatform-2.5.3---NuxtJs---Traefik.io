@@ -2,5 +2,5 @@
 
 [tls]
   [[tls.certificates]]
-    certFile = "/etc/traefik/certs/local-cert.pem"
-    keyFile = "/etc/traefik/certs/local-key.pem"
+    certFile = "/certs/local-cert.pem"
+    keyFile = "/certs/local-key.pem"

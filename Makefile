@@ -69,9 +69,6 @@ back-db-reset: ## Reset the database with fixtures data
 back-rm-cache: ## Clear cache
 	$(DC) exec php rm -rf var/cache
 
-certs:
-	cd ./traefik && mkdir certs && mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "client.localhost" "api.localhost" "adminer.localhost" "localhost"
-
 ##
 ## Frontend specific
 ## -----
@@ -94,11 +91,8 @@ test: ## Run all tests
 	make stan
 	$(DC) exec client_${PROJECT_NAME} yarn lint
 
-cs: ## Run php cs fixer
-	$(DC) exec php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --dry-run --stop-on-violation --diff
-
 cs-fix: ## Run php cs fixer and fix errors
-	$(DC) exec php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix
+	$(DC) exec php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --diff --show-progress=estimating
 
 phpunit: ## Run PHPUnit
 	$(DC) exec php bin/phpunit

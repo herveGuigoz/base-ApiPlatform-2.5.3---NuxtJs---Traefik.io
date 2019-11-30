@@ -5,6 +5,8 @@
 ### Install Project
 - Edit environment `PROJECT_NAME` variables in `./.env` && `./Makefile`
 - Edit `DATABASE_URL` variable in `./api/.env` & db variable in `./.env`
+- Create certs for tls
+- Run `make network`
 - Run `make install`
 
 ## Create Certs

@@ -13,9 +13,9 @@
 
 ## Routes: 
 
-| Services          | web router                               |   web-secure router                        |
-| ----------------- | : -------------------------------------: | : ---------------------------------------: |
-| Traefik Dashboard | [http](http://localhost:8080/dashboard/) | [https](https://localhost:8080/dashboard/) |
-| API               | [http](http://api-localhost)             | [https](https://api-localhost)             |
-| Nuxt              | [http](http://client-localhost)          | [https](https://client-localhost)          |
-| Adminer           | [http](http://adminer-localhost/)        | [https](https://adminer-localhost/)        |
+| Service           | web router                              | web-secure router                         |
+|-------------------|-----------------------------------------|-------------------------------------------|
+| Traefik Dashboard | [http](http://localhost:8080/dashboard/)| [https](https://localhost:8080/dashboard/)|
+| API               | [http](http://api-localhost)            | [https](https://api-localhost)            |
+| Nuxt              | [http](http://client-localhost)         | [https](https://client-localhost)         |
+| Adminer           | [http](http://adminer-localhost/)       | [https](https://adminer-localhost/)       |

@@ -40,9 +40,12 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
-    '@nuxtjs/axios',
-    '@nuxt/http'
+    '@nuxtjs/axios'
   ],
+  axios: {
+    baseURL: 'http://api:80',
+    browserBaseURL: 'https://api.localhost' //can use environment variables to fill both..
+  },
   /*
   ** Build configuration
   */

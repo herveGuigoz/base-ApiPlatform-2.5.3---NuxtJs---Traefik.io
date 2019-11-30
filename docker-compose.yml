@@ -89,8 +89,6 @@ services:
     volumes:
       - ./api/public:/srv/api/public:ro
     <<: *networks
-    expose: 
-      - "8443"
     extra_hosts:
       - "localhost:127.0.0.1"
     labels:
@@ -115,10 +113,6 @@ services:
       - db-data:/var/lib/postgresql/data:rw
       # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./api/docker/db/data:/var/lib/postgresql/data:rw
-#    ports:
-#      - target: 5432
-#        published: 5432
-#        protocol: tcp
     <<: *networks
     ports:
       - "5432:5432"
@@ -129,8 +123,6 @@ services:
     restart: always
     expose:
       - "8080"
-#    ports:
-#      - '8998:8080'
     depends_on:
       - db
     <<: *networks

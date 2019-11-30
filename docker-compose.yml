@@ -27,8 +27,8 @@ services:
       # On map la conf statique dans le conteneur
       - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
       # On map la conf dynamique dans le conteneur
-      - ./traefik/traefik.config.toml:/etc/traefik/traefik.config.toml:ro
-      # On map les certificats dans le conteneur en prod => Let’s Encrypt
+      - ./traefik/dynamic-conf.toml:/etc/traefik/dynamic-conf.toml:ro
+      # On map les certificats dans le conteneur | use self-generated certificate only in dev, IT IS NOT SECURE!
       - dev-certs:/certs:ro
     <<: *networks
 
@@ -45,13 +45,18 @@ services:
     labels:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
-      # The domains the service will respond to
+      # URL HTTP
       - traefik.http.routers.client-http-${PROJECT_NAME}.rule=HostRegexp(`{subdomains:(www.)?}${DOMAIN_NAME}`)
+      # URL HTTPS
       - traefik.http.routers.client-https-${PROJECT_NAME}.rule=HostRegexp(`{subdomains:(www.)?}${DOMAIN_NAME}`)
-      # Allow request from the predefined entry points named "web" & "web-secure"
+      # Point d'entré web (http)
       - traefik.http.routers.client-http-${PROJECT_NAME}.entrypoints=web
+      # Point d'entré web-secure (https)
       - traefik.http.routers.client-https-${PROJECT_NAME}.entrypoints=web-secure
+      # Activation de TLS
       - traefik.http.routers.client-https-${PROJECT_NAME}.tls=true
+      # HTTP to HTTPS Redirection
+      - traefik.http.routers.client-http-${PROJECT_NAME}.middlewares=redirect@file
 
   php:
     build:
@@ -96,13 +101,18 @@ services:
     labels:
       # Explicitly tell Traefik to expose this container
       - traefik.enable=true
-      # The domains the service will respond to
+      # URL HTTP
       - traefik.http.routers.api-http-${PROJECT_NAME}.rule=Host(`api.${DOMAIN_NAME}`)
+      # URL HTTPS
       - traefik.http.routers.api-https-${PROJECT_NAME}.rule=Host(`api.${DOMAIN_NAME}`)
-      # Allow request from the predefined entry points named "web" & "web-secure"
+      # Point d'entré web (http)
       - traefik.http.routers.api-http-${PROJECT_NAME}.entrypoints=web
+      # Point d'entré web-secure (https)
       - traefik.http.routers.api-https-${PROJECT_NAME}.entrypoints=web-secure
+      # Activation de TLS
       - traefik.http.routers.api-https-${PROJECT_NAME}.tls=true
+      # HTTP to HTTPS Redirection
+      - traefik.http.routers.api-http-${PROJECT_NAME}.middlewares=redirect@file
     
   db:
     image: postgres:12-alpine
@@ -131,13 +141,18 @@ services:
     labels:
     # Explicitly tell Traefik to expose this container
     - traefik.enable=true
-    # The domains the service will respond to
+    # URL HTTP
     - traefik.http.routers.adminer-http-${PROJECT_NAME}.rule=Host(`adminer.${DOMAIN_NAME}`)
+    # URL HTTPS
     - traefik.http.routers.adminer-https-${PROJECT_NAME}.rule=Host(`adminer.${DOMAIN_NAME}`)
-    # Allow request from the predefined entry points named "web" & "web-secure"
+    # Point d'entré web (http)
     - traefik.http.routers.adminer-http-${PROJECT_NAME}.entrypoints=web
+    # Point d'entré web-secure (https)
     - traefik.http.routers.adminer-https-${PROJECT_NAME}.entrypoints=web-secure
+    # Activation de TLS
     - traefik.http.routers.adminer-https-${PROJECT_NAME}.tls=true
+    # HTTP to HTTPS Redirection
+    - traefik.http.routers.adminer-http-${PROJECT_NAME}.middlewares=redirect@file
 
   dev-tls:
     build:

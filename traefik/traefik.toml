@@ -28,5 +28,5 @@
 
 [providers]
   [providers.file]
-    filename = "/etc/traefik/traefik.config.toml"
+    filename = "/etc/traefik/dynamic-conf.toml"
     watch = true

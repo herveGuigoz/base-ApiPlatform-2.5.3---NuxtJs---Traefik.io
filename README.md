@@ -10,7 +10,7 @@
 
 | Service           | web router                              | web-secure router                         |
 |-------------------|-----------------------------------------|-------------------------------------------|
-| Traefik Dashboard | [http](127.0.0.1:8080)                  |                                           |
+| Traefik Dashboard | [http](http://127.0.0.1:8080)                  |                                           |
 | API               | [http](http://api.localhost)            | [https](https://api.localhost)            |
 | Nuxt              | [http](http://localhost)                | [https](https://localhost)                |
 | Test Request      | [http](http://localhost/requests)       | [https](https://localhost/requests)       |

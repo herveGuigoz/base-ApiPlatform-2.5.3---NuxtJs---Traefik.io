@@ -161,21 +161,6 @@ services:
     volumes:
       - dev-certs:/certs:rw
 
-#  admin:
-#    build:
-#      context: ./admin
-#      target: api_platform_admin_development
-#      cache_from:
-#        - ${ADMIN_IMAGE:-quay.io/api-platform/admin}
-#    image: ${ADMIN_IMAGE:-quay.io/api-platform/admin}
-#    volumes:
-#      - ./admin:/usr/src/admin:rw,cached
-#      - dev-certs:/usr/src/admin/node_modules/webpack-dev-server/ssl:ro
-#    ports:
-#      - target: 3000
-#        published: 444
-#        protocol: tcp
-
 #  vulcain:
 #    image: dunglas/vulcain
 #    environment:

@@ -18,7 +18,7 @@ ARG MKCERT_VERSION=1.4.1
 RUN set -eux; \
 	wget -O /usr/local/bin/mkcert https://github.com/FiloSottile/mkcert/releases/download/v$MKCERT_VERSION/mkcert-v$MKCERT_VERSION-linux-amd64; \
 	chmod +x /usr/local/bin/mkcert; \
-	mkcert --cert-file local-cert.pem --key-file local-key.pem api.localhost adminer.localhost admin.localhost localhost;
+	mkcert --cert-file local-cert.pem --key-file local-key.pem api.localhost adminer.localhost localhost;
 
 VOLUME /certs
 

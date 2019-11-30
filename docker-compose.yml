@@ -160,10 +160,6 @@ services:
     container_name: dev_tls_${PROJECT_NAME}
     volumes:
       - dev-certs:/certs:rw
-    ports:
-      - target: 80
-        published: 85
-        protocol: tcp
 
 #  admin:
 #    build:

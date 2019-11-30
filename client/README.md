@@ -1,8 +1,4 @@
-# familycooking
-
-> Share you recipes in family
-
-## Build Setup
+# Build Setup
 
 ``` bash
 # install dependencies

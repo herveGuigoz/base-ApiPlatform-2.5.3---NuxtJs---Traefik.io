@@ -69,6 +69,7 @@ back-db-reset: ## Reset the database with fixtures data
 
 back-rm-cache: ## Clear cache
 	$(DC) exec php bin/console cache:clear --env=$(ENV)
+	$(DC) exec php rm -rf var/cache/*
 
 ##
 ## Frontend specific

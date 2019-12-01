@@ -1,6 +1,7 @@
 DC=docker-compose
 DC_UP=$(DC) up -d
 PROJECT_NAME=apiplatform
+ENV=dev
 
 down: ## Down containers
 	$(DC) down --remove-orphans
@@ -67,7 +68,7 @@ back-db-reset: ## Reset the database with fixtures data
 	$(DC) exec php bin/console hautelook:fixtures:load -n --purge-with-truncate
 
 back-rm-cache: ## Clear cache
-	$(DC) exec php rm -rf var/cache
+	$(DC) exec php bin/console cache:clear --env=$(ENV)
 
 ##
 ## Frontend specific

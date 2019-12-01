@@ -1,16 +1,6 @@
 # use this self-generated certificate only in dev, IT IS NOT SECURE!
 
-
-# https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG NGINX_VERSION=1.17
-
-
-FROM nginx:${NGINX_VERSION}-alpine
-
-# persistent / runtime deps
-RUN apk add --no-cache \
-		nss-tools \
-	;
+FROM alpine:3.10
 
 WORKDIR /certs
 
